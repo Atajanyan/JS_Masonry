@@ -1,6 +1,6 @@
 
 function MasonryPrototype(containerClass, settings) {
-    
+
   const container = document.querySelector(containerClass);
   const columnWidth = settings.columnWidth || 200;
   const autoResize = settings.autoResize || false;
