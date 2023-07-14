@@ -1,40 +1,55 @@
 
-function MasonryPrototype(containerClass, settings) {
+function MasonryPrototype(containerClassName, settings) {
+  const container = document.querySelector(containerClassName);
 
-  const container = document.querySelector(containerClass);
   const columnWidth = settings.columnWidth || 200;
   const autoResize = settings.autoResize || false;
   const gap = 5;
 
   function positionItems() {
     const containerWidth = container.offsetWidth;
-    const columns = Math.floor(containerWidth / (columnWidth + gap));
-    let padding = 0;
 
-    if (!autoResize) {
-      padding = (containerWidth - columns * (columnWidth + gap)) / 2;
-    }
+    let columns = Math.floor(containerWidth / (columnWidth + gap));
 
-    container.style.columnCount = `${columns}`;
-    container.style.columnWidth = columnWidth + "px";
-    container.style.paddingInline = padding + "px";
-    container.style.columnGap = gap + "px";
+    const columnsHeight = new Array(columns).fill(0);
+
+    const Data = [...container.children].map((child) => {
+      return {
+        child,
+        width: columnWidth, 
+        height:columnWidth *child.firstElementChild.naturalHeight/ child.firstElementChild.naturalWidth
+      };
+    });
+
+    Data.forEach((el) => {
+      const min = Math.min(...columnsHeight);
+      const minIndex = columnsHeight.indexOf(min);
+
+      el.child.style.width = `${el.width}px`;
+      el.child.style.top = `${columnsHeight[minIndex]}px`;
+      el.child.style.left = `${minIndex * columnWidth + gap * minIndex}px`;
+
+    columnsHeight[minIndex] += el.height + gap;   
+    });
   }
 
   positionItems();
 
-  window.addEventListener("resize", positionItems);
+  if (autoResize) { 
+    window.addEventListener("resize", positionItems);
+  } 
+
 }
 
-
-MasonryPrototype.render = function (containerClass, settings) {
-  new MasonryPrototype(containerClass, settings);
+MasonryPrototype.render = function (containerClassName, settings) {
+  new MasonryPrototype(containerClassName, settings);
 };
-
 
 window.addEventListener("DOMContentLoaded", () => {
   MasonryPrototype.render(".masonry", {
     columnWidth: 200,
-    // autoResize: true,
+    autoResize: true,
   });
 });
+
+
